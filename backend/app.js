@@ -1,8 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose'); // <-- IL MANQUAIT CETTE LIGNE !
 require('dotenv').config(); // Décommente ça pour utiliser ton fichier .env
-
 const app = express();
+
+const Book = require('./models/Book');
+const User = require('./models/User');
 
 // Utilise la variable d'environnement pour plus de sécurité
 mongoose.connect(process.env.MONGO_URL)
@@ -19,15 +21,17 @@ app.use((req, res, next) => {
 });
 
 app.post('/api/books', (req, res, next) => {
-  const book = req.body;
-  console.log(book);
-  res.status(201).json({
-    message: 'Books créés avec succès!'
+  delete req.body._id; // On s'assure que l'ID généré par MongoDB est utilisé
+  const book = new Book({
+    ...req.body
   });
+  book.save()
+    .then(() => res.status(201).json({ message: 'Livre enregistré !' }))
+    .catch(error => res.status(400).json({ error }));
 });
 
 app.get('/api/books', (req, res, next) => {
-    console.log('Récupération des livres');
+  console.log('Récupération des livres');
   res.status(200).json([]);
 });
 
