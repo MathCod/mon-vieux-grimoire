@@ -59,7 +59,10 @@ exports.deleteBook = (req, res, next) => {
 
 exports.getOneBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
-    .then(book => res.status(200).json(book))
+    .then(book => {
+        if (!book) return res.status(404).json({ message: 'Livre non trouvé' });
+        res.status(200).json(book);
+    })
     .catch(error => res.status(404).json({ error }));
 };
 
@@ -75,4 +78,43 @@ exports.getBestRatings = (req, res, next) => {
     .limit(3)
     .then(books => res.status(200).json(books))
     .catch(error => res.status(400).json({ error }));
+};
+
+
+
+exports.createRating = (req, res, next) => {
+  // On s'assure que la note est valide
+  const rating = parseFloat(req.body.rating);
+  if (rating < 0 || rating > 5) {
+      return res.status(400).json({ message: 'La note doit être entre 0 et 5' });
+  }
+
+  Book.findOne({ _id: req.params.id })
+    .then(book => {
+      if (!book) {
+        return res.status(404).json({ message: 'Livre non trouvé' });
+      }
+
+      // On vérifie si l'utilisateur a déjà noté
+      const userAlreadyRated = book.ratings.find(r => r.userId === req.auth.userId);
+      if (userAlreadyRated) {
+        return res.status(400).json({ message: 'Livre déjà noté' });
+      }
+
+      // Ajout de la note
+      book.ratings.push({ userId: req.auth.userId, grade: rating });
+
+      // Recalcul de la moyenne
+      const totalGrades = book.ratings.reduce((acc, curr) => acc + curr.grade, 0);
+      book.averageRating = parseFloat((totalGrades / book.ratings.length).toFixed(1));
+
+      // Sauvegarde et envoi du livre mis à jour
+      return book.save();
+    })
+    .then(savedBook => {
+      // TRÈS IMPORTANT : On renvoie le livre sauvegardé (savedBook) 
+      // car le frontend attend l'objet complet avec son _id
+      res.status(200).json(savedBook);
+    })
+    .catch(error => res.status(500).json({ error }));
 };
