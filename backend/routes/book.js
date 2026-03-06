@@ -6,6 +6,8 @@ const BookCtrl = require('../controllers/book');
 
 const router = express.Router();
 
+router.get('/bestrating', BookCtrl.getBestRatings);
+
 router.get('/', BookCtrl.getAllBooks);
 router.get('/:id', BookCtrl.getOneBook);
 
