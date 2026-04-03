@@ -17,10 +17,20 @@ function BookItem({ book, size }) {
       title = <h2>{book.title}</h2>;
       break;
   }
+
+  // --- CORRECTION DE L'URL DE L'IMAGE ---
+  // On remplace localhost par ton URL Render pour que les anciens livres s'affichent
+  const finalImageUrl = book.imageUrl.replace('http://localhost:4000', 'https://mon-vieux-grimoire-mcuh.onrender.com');
+
   return (
     <Link to={`/livre/${book.id}`} className={styles.BookItem}>
       <article>
-        <img className={styles.BookImage} src={book.imageUrl} alt={`${book.title}, ${book.author} - ${book.year}`} />
+        {/* On utilise finalImageUrl ici au lieu de book.imageUrl */}
+        <img
+          className={styles.BookImage}
+          src={finalImageUrl}
+          alt={`${book.title}, ${book.author} - ${book.year}`}
+        />
         <div className={styles.BookInfo}>
           <div className={styles.Rating}>
             {displayStars(book.averageRating)}
@@ -52,4 +62,5 @@ BookItem.propTypes = {
     averageRating: PropTypes.number,
   }).isRequired,
 };
+
 export default BookItem;

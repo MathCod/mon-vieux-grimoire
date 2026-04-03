@@ -63,10 +63,14 @@ function Book() {
 
   const loadingContent = (<h1>Chargement ...</h1>);
 
+  // LIGNE 70 MODIFIÉE CI-DESSOUS
   const bookContent = !loading && !book.delete ? (
     <div>
       <div className={styles.Book}>
-        <div className={styles.BookImage} style={{ backgroundImage: `url("${book.imageUrl}")` }} />
+        <div
+          className={styles.BookImage}
+          style={{ backgroundImage: `url("${book.imageUrl.replace('http://localhost:4000', 'https://mon-vieux-grimoire-mcuh.onrender.com')}")` }}
+        />
         <div className={styles.BookContent}>
           {book?.userId === connectedUser?.userId ? (
             <div className={styles.Owner}>
@@ -94,6 +98,7 @@ function Book() {
       <BestRatedBooks />
     </div>
   ) : null;
+
   const deletedContent = book?.delete ? (
     <div className={styles.Deleted}>
       <h1>{book.title}</h1>
@@ -113,8 +118,8 @@ function Book() {
         {bookContent}
       </div>
       {book?.delete ? deletedContent : null}
-
     </div>
   );
 }
+
 export default Book;
